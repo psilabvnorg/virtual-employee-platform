@@ -7,7 +7,7 @@ import { DEPARTMENTS, DEPARTMENT_BY_ID } from "../../data/departments";
 import { useAppStore } from "../../store/useAppStore";
 import type { DepartmentId } from "../../types";
 
-export default function OntologyLayer() {
+export default function PSILayer() {
   const { selectedDepartmentId, hoveredDepartmentId } = useAppStore();
 
   const edges = useMemo(() => {
@@ -26,7 +26,7 @@ export default function OntologyLayer() {
 
   return (
     <group position={[0, 0, 0]}>
-      <Platform position={[0, 0, 0]} size={[13, 0.25, 6]} label="ONTOLOGY" labelOffset={0.7} />
+      <Platform position={[0, 0, 0]} size={[13, 0.25, 6]} label="PSI" labelOffset={0.7} />
 
       {/* relationship edges between departments */}
       {edges.map((e) => {

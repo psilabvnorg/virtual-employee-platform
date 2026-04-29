@@ -1,12 +1,12 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import TopLayer from "./TopLayer";
-import OntologyLayer from "./OntologyLayer";
+import PSILayer from "./PSILayer";
 import BottomLayer from "./BottomLayer";
 import ConnectionStreams from "./ConnectionStreams";
 
 const TOP_Y = 5;
-const ONT_Y = 0.13; // top surface of ontology slab (slab y=0, height 0.25)
+const ONT_Y = 0.13; // top surface of PSI slab (slab y=0, height 0.25)
 const BOT_TOP_Y = -4.91; // top of bottom slab (y=-5, height 0.18)
 const ONT_BOTTOM_Y = -0.13;
 
@@ -45,7 +45,7 @@ export default function Scene() {
       <hemisphereLight args={["#ffffff", "#d6d6d6", 0.4]} />
 
       <TopLayer />
-      <OntologyLayer />
+      <PSILayer />
       <BottomLayer />
 
       <ConnectionStreams fromY={TOP_Y - 0.1} toY={ONT_Y} positions={TOP_STREAMS} count={5} speed={0.32} />

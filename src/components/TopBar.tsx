@@ -1,4 +1,4 @@
-import { Search, Bell, Layers } from "lucide-react";
+import { Search, Bell } from "lucide-react";
 import { useAppStore } from "../store/useAppStore";
 
 export default function TopBar() {
@@ -7,8 +7,7 @@ export default function TopBar() {
 
   return (
     <div className="h-12 shrink-0 flex items-center justify-between px-5 border-b border-black/10 bg-bg/80 backdrop-blur">
-      <div className="flex items-center gap-2 text-[12px] font-mono text-black/60">
-        <Layers size={14} className="text-black/50" />
+      <div className="flex items-center gap-3 text-[12px] font-mono text-black/60">
         {path.map((segment, i) => (
           <span key={i} className="flex items-center gap-2">
             <span
@@ -29,7 +28,7 @@ export default function TopBar() {
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-black/5 text-[12px] text-black/60 w-72">
           <Search size={13} />
           <input
-            placeholder="Search ontology, employees, integrations…"
+            placeholder="Search PSI, employees, integrations…"
             className="bg-transparent outline-none flex-1 placeholder:text-black/40 text-black"
           />
           <span className="text-[10px] font-mono text-black/40 px-1 py-0.5 border border-black/15 rounded">
@@ -41,7 +40,7 @@ export default function TopBar() {
         </button>
         <div className="flex items-center gap-2 text-[11px] font-mono text-black/60">
           <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse-soft" />
-          ONTOLOGY · LIVE
+          PSI · LIVE
         </div>
       </div>
     </div>
