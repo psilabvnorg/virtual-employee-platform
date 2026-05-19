@@ -1,0 +1,23 @@
+i want to enhance this system, add a lite mobile app (X), and back end service (Y) that, user story
+1. user select document category in X: invoice, contract, certificate, government identiry docs ....
+2. user take picture of that docs using X, 1 docs can have multiple picture
+3. X trigger Y to upload picture of that docs is uploaded to a drive storage, categorize by the document category, year, month, with standardize file name with iso date such as 20260101
+4. Y call there is another service deepseek OCR (in different system, not this system, you don't need to build deepseek OCR, assume the OCR api already exist), user can click a button to trigger the OCR job, to extract text for new docs, else the OCR will run batch mode every night to extract, and save info into a excel google sheet, just extract all and save the extracted info into 1 column as plain text , no need to categorize information for now . 
+
+so Y have few sub service:
+upload photo into drive
+call OCR API to extract info and save into table
+then normalize the messy extracted data into structured data using prompt engineering (place holder + prompt template for now)
+
+based on Y , user can search the docs
+
+
+multiple storage option, could be google drive, or a on premise SFTP, or S3, or Azure Blob, but build drive for now, place holder for other things later
+
+--
+also suggest me some ideas to make this helpful and lean
+--------
+
+
+
+--
