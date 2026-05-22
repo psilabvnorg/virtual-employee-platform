@@ -1,6 +1,8 @@
 import { X, Users, Activity, ArrowUpRight, Layers } from "lucide-react";
 import { useAppStore } from "../store/useAppStore";
 import { DEPARTMENT_BY_ID } from "../data/departments";
+import { VIRTUAL_EMPLOYEE_LABEL_TO_ID } from "../data/virtualEmployees";
+import VirtualEmployeePanel from "./virtualEmployee/VirtualEmployeePanel";
 
 export default function DetailPanel() {
   const {
@@ -15,6 +17,29 @@ export default function DetailPanel() {
 
   const dept =
     selectedDepartmentId != null ? DEPARTMENT_BY_ID[selectedDepartmentId] : null;
+
+  const isVirtualEmployee = selectedMenuPath?.[0] === "Virtual Employees" && selectedMenuPath?.[1];
+  const virtualEmployeeId = isVirtualEmployee
+    ? VIRTUAL_EMPLOYEE_LABEL_TO_ID[selectedMenuPath![1]]
+    : null;
+
+  if (virtualEmployeeId) {
+    return (
+      <div className="w-[380px] shrink-0 border-l border-black/10 bg-white flex flex-col overflow-hidden">
+        <div className="px-5 pt-5 pb-3 border-b border-black/10 flex items-start justify-between shrink-0">
+          <div className="text-lg font-semibold tracking-tight">
+            {selectedMenuPath![1]}
+          </div>
+          <button onClick={closePanel} className="p-1.5 rounded-md hover:bg-black/5 text-black/50">
+            <X size={15} />
+          </button>
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <VirtualEmployeePanel employeeId={virtualEmployeeId} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-[380px] shrink-0 border-l border-black/10 bg-white flex flex-col thin-scroll-dark overflow-y-auto">

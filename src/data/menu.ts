@@ -36,6 +36,13 @@ export const MENU: MenuSection[] = [
       { label: "SaaS" },
     ],
   },
+  {
+    label: "Virtual Employees",
+    icon: "Bot",
+    children: [
+      { label: "Accounting Assistant" },
+    ],
+  },
   { label: "Platform Settings", icon: "Settings" },
   { label: "Monitoring", icon: "Activity" },
 ];

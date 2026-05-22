@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Activity,
+  Bot,
   Building2,
   ChevronRight,
   Plug,
@@ -12,11 +13,12 @@ import { MENU } from "../data/menu";
 import { useAppStore } from "../store/useAppStore";
 
 const ICONS: Record<string, LucideIcon> = {
+  Activity,
+  Bot,
   Building2,
-  UserCircle,
   Plug,
   Settings,
-  Activity,
+  UserCircle,
 };
 
 export default function Sidebar() {

@@ -1,0 +1,51 @@
+[
+  {
+    "id": "extract_invoice",
+    "name": "extract_invoice",
+    "category": "invoice",
+    "standard": "VAS",
+    "content": "You are an accounting expert following Vietnamese Accounting Standards (VAS). Extract structured data from the invoice OCR text below. Return ONLY a valid JSON object with these exact fields:\n- vendor: seller company name\n- vendorTaxCode: seller tax identification number (MST)\n- invoiceNumber: invoice serial/number\n- invoiceDate: date as YYYY-MM-DD\n- dueDate: payment due date as YYYY-MM-DD (null if not stated)\n- lineItems: array of {description, quantity, unitPrice, amount}\n- subtotal: amount before VAT\n- taxRate: VAT rate as decimal (e.g. 0.1 for 10%)\n- taxAmount: VAT amount in numbers\n- totalAmount: final total including VAT\n- currency: currency code (VND, USD)\n- paymentMethod: payment method or null\n\nReturn only the JSON object, no explanation."
+  },
+  {
+    "id": "extract_contract",
+    "name": "extract_contract",
+    "category": "contract",
+    "standard": "VAS",
+    "content": "You are a legal and accounting expert. Extract structured data from the contract OCR text below. Return ONLY a valid JSON object with these exact fields:\n- contractNumber: contract identifier\n- contractType: type of contract (service, goods, construction, etc.)\n- parties: array of {name, role, taxCode} for each party\n- effectiveDate: start date as YYYY-MM-DD\n- expiryDate: end date as YYYY-MM-DD (null if open-ended)\n- contractValue: total contract value in numbers\n- currency: currency code\n- paymentTerms: payment schedule description\n- keyObligations: array of key obligation strings\n- governingLaw: applicable law jurisdiction\n\nReturn only the JSON object, no explanation."
+  },
+  {
+    "id": "extract_labor_contract",
+    "name": "extract_labor_contract",
+    "category": "labor",
+    "standard": "VAS",
+    "content": "You are an HR and accounting expert familiar with Vietnamese labor law. Extract structured data from the labor contract OCR text below. Return ONLY a valid JSON object with these exact fields:\n- employeeName: full name of employee\n- employeeId: employee ID or national ID number\n- position: job title/position\n- department: department name\n- startDate: employment start date as YYYY-MM-DD\n- endDate: contract end date as YYYY-MM-DD (null if indefinite)\n- contractType: definite-term or indefinite-term\n- basicSalary: monthly basic salary in numbers\n- allowances: array of {type, amount}\n- totalMonthlyPay: total monthly compensation\n- socialInsuranceRate: employee social insurance % (default 8%)\n- healthInsuranceRate: employee health insurance % (default 1.5%)\n- unemploymentInsuranceRate: employee unemployment insurance % (default 1%)\n- currency: VND\n\nReturn only the JSON object, no explanation."
+  },
+  {
+    "id": "extract_tax",
+    "name": "extract_tax",
+    "category": "tax",
+    "standard": "VAS",
+    "content": "You are a tax accounting expert familiar with Vietnamese tax law. Extract structured data from the tax document OCR text below. Return ONLY a valid JSON object with these exact fields:\n- taxType: type of tax (VAT, CIT, PIT, FCT, SCT, etc.)\n- taxPeriod: period covered (e.g. Q1-2026, 2025, 2026-03)\n- taxableAmount: taxable base amount\n- taxRate: applicable rate as decimal\n- taxAmount: calculated tax amount\n- penaltyAmount: penalty amount if any (0 if none)\n- totalDue: total amount due\n- dueDate: payment due date as YYYY-MM-DD\n- declarationDate: date of declaration as YYYY-MM-DD\n- currency: VND\n\nReturn only the JSON object, no explanation."
+  },
+  {
+    "id": "extract_insurance",
+    "name": "extract_insurance",
+    "category": "insurance",
+    "standard": "VAS",
+    "content": "You are an insurance and accounting expert. Extract structured data from the insurance document OCR text below. Return ONLY a valid JSON object with these exact fields:\n- provider: insurance company name\n- policyNumber: policy/contract number\n- insuredParty: name of insured entity or person\n- coverageType: type of insurance (health, property, liability, life, etc.)\n- coverageAmount: maximum coverage/sum insured\n- premium: premium amount per period\n- premiumFrequency: payment frequency (monthly, quarterly, annual)\n- startDate: coverage start date as YYYY-MM-DD\n- endDate: coverage end date as YYYY-MM-DD\n- currency: currency code\n\nReturn only the JSON object, no explanation."
+  },
+  {
+    "id": "extract_other",
+    "name": "extract_other",
+    "category": "other",
+    "standard": "VAS",
+    "content": "You are an accounting expert. Extract all relevant structured data from the document OCR text below. Return ONLY a valid JSON object with any key-value fields you can identify from the document. Include dates, amounts, party names, reference numbers, and any other significant information.\n\nReturn only the JSON object, no explanation."
+  },
+  {
+    "id": "generate_journal_entry",
+    "name": "generate_journal_entry",
+    "category": "any",
+    "standard": "VAS",
+    "content": "You are an expert accountant following Vietnamese Accounting Standards (VAS) - Circular 200/2014/TT-BTC. Based on the document data below, generate the correct double-entry journal lines.\n\nReturn ONLY a valid JSON array. Each element must have:\n- account: account code and name (e.g. '1311 - Receivables from customers')\n- debit: debit amount as number (0 if this is a credit entry)\n- credit: credit amount as number (0 if this is a debit entry)\n- description: brief memo for this line\n\nKey VAS account codes to use:\n1111/1121: Cash / Bank deposit\n1311: Receivables from customers\n3311: Payables to suppliers\n3331: VAT payable output\n1331: VAT deductible input\n5111: Revenue from goods\n5113: Revenue from services\n6421: Selling expenses\n6422: Administration expenses\n334: Payable to employees (salary)\n3383: Social insurance payable\n3384: Health insurance payable\n3386: Unemployment insurance payable\n622: Direct labor cost\n6411: Salary expense (selling staff)\n6412: Salary expense (admin staff)\n811: Other expenses\n711: Other income\n\nEnsure sum(debit) === sum(credit). Return only the JSON array, no explanation."
+  }
+]

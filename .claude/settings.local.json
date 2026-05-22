@@ -3,7 +3,9 @@
     "allow": [
       "Bash(Get-ChildItem -Path \"d:\\\\AI\\\\virtual-employee-platform\" -Force)",
       "Bash(Select-Object Name, PSIsContainer)",
-      "Bash(Format-Table -AutoSize)"
+      "Bash(Format-Table -AutoSize)",
+      "Bash(npx tsc *)",
+      "Bash(Select-Object Name, Mode)"
     ]
   }
 }
