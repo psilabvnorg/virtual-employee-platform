@@ -124,6 +124,15 @@ export function useGoogleAuth(onSuccess: (user: GoogleUser) => void, onError?: (
     if (listenerRegistered) return;
     listenerRegistered = true;
     App.addListener('appUrlOpen', handleOAuthRedirect);
+    // If the browser closes without completing OAuth, reject the pending promise
+    // so the calling component can show an error and re-enable the button.
+    Browser.addListener('browserFinished', () => {
+      if (pendingOAuth) {
+        const cb = pendingOAuth;
+        pendingOAuth = null;
+        cb.reject('browser_closed');
+      }
+    });
   }, []);
 
   const login = useCallback(async () => {

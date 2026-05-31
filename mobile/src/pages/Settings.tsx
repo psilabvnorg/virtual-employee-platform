@@ -48,7 +48,7 @@ export default function Settings() {
 
   const { login, logout } = useGoogleAuth(
     (newUser) => { setUser(newUser); setLoginError(''); },
-    (msg) => setLoginError(msg),
+    (msg) => { if (msg !== 'browser_closed') setLoginError(msg); },
   );
 
   function handleLogout() {

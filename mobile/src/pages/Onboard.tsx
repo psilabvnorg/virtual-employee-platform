@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useGoogleAuth, getStoredUser, GoogleUser } from '../hooks/useGoogleAuth';
@@ -21,10 +21,15 @@ export default function Onboard({ onComplete }: OnboardProps) {
   const [folder, setFolder] = useState<FolderConfig | null>(getStoredFolder);
   const [loginError, setLoginError] = useState('');
 
-  const { login } = useGoogleAuth(
-    (newUser) => { setUser(newUser); setLoginError(''); },
-    (msg) => setLoginError(msg),
-  );
+  const handleLoginSuccess = useCallback((newUser: GoogleUser) => {
+    setUser(newUser);
+    setLoginError('');
+  }, []);
+  const handleLoginError = useCallback((msg: string) => {
+    if (msg !== 'browser_closed') setLoginError(msg);
+  }, []);
+
+  const { login } = useGoogleAuth(handleLoginSuccess, handleLoginError);
 
   function switchLanguage(lang: string) {
     i18n.changeLanguage(lang);
