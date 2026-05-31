@@ -10,6 +10,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Disable SW in Capacitor — it runs on https://localhost and caches assets
+      // aggressively, making every code change require a full app uninstall to pick up.
+      selfDestroying: process.env.CAPACITOR === '1',
       manifest: {
         name: 'Doc Vault',
         short_name: 'DocVault',
