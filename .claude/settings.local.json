@@ -24,7 +24,8 @@
       "PowerShell($apk = \"c:\\\\Users\\\\P15V\\\\Desktop\\\\PSI\\\\AI-PROJECT\\\\virtual-employee-platform\\\\mobile\\\\android\\\\app\\\\build\\\\outputs\\\\apk\\\\debug\\\\app-debug.apk\")",
       "PowerShell($adb = Get-ChildItem \"C:\\\\Users\\\\P15V\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\platform-tools\\\\adb.exe\" -ErrorAction SilentlyContinue; if \\(-not $adb\\) { $adb = Get-ChildItem \"C:\\\\Program Files\\\\Android\\\\Android Studio\" -Recurse -Filter \"adb.exe\" -ErrorAction SilentlyContinue | Select-Object -First 1 }; $adb.FullName)",
       "PowerShell($adb = \"C:\\\\Users\\\\P15V\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\platform-tools\\\\adb.exe\"; $apk = \"c:\\\\Users\\\\P15V\\\\Desktop\\\\PSI\\\\AI-PROJECT\\\\virtual-employee-platform\\\\mobile\\\\android\\\\app\\\\build\\\\outputs\\\\apk\\\\debug\\\\app-debug.apk\"; & $adb install -r $apk)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
