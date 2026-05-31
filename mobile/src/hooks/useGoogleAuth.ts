@@ -8,6 +8,8 @@ export interface GoogleUser {
   email: string;
   picture: string;
   accessToken: string;
+  refreshToken?: string;
+  expiresAt?: number; // ms timestamp
 }
 
 const STORAGE_KEY = 'doc-vault-google-user';
@@ -85,6 +87,8 @@ async function handleOAuthRedirect(data: { url: string }) {
       email: info.email ?? '',
       picture: info.picture ?? '',
       accessToken: tokens.access_token,
+      refreshToken: tokens.refresh_token,
+      expiresAt: tokens.expires_in ? Date.now() + tokens.expires_in * 1000 : undefined,
     };
 
     storeUser(user);
@@ -92,6 +96,27 @@ async function handleOAuthRedirect(data: { url: string }) {
   } catch (err) {
     cb.reject(err instanceof Error ? err.message : String(err));
   }
+}
+
+export async function refreshAccessToken(
+  refreshToken: string,
+): Promise<{ accessToken: string; expiresAt: number }> {
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken,
+  });
+  const resp = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString(),
+  });
+  if (!resp.ok) throw new Error(`Token refresh failed: ${await resp.text()}`);
+  const tokens = await resp.json();
+  return {
+    accessToken: tokens.access_token as string,
+    expiresAt: Date.now() + ((tokens.expires_in as number) ?? 3600) * 1000,
+  };
 }
 
 export function useGoogleAuth(onSuccess: (user: GoogleUser) => void, onError?: (msg: string) => void) {
@@ -117,6 +142,8 @@ export function useGoogleAuth(onSuccess: (user: GoogleUser) => void, onError?: (
         url.searchParams.set('scope', SCOPES);
         url.searchParams.set('code_challenge', challenge);
         url.searchParams.set('code_challenge_method', 'S256');
+        url.searchParams.set('access_type', 'offline');
+        url.searchParams.set('prompt', 'consent');
         Browser.open({ url: url.toString() });
       }).then(onSuccess);
     } catch (err) {

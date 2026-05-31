@@ -17,18 +17,28 @@ export interface SearchResult {
   ocrConfidence?: string;
 }
 
-function getStoredAuth(): { accessToken: string; folderId: string } | null {
-  try {
-    const userRaw   = localStorage.getItem('doc-vault-google-user');
-    const folderRaw = localStorage.getItem('doc-vault-root-folder');
-    if (!userRaw || !folderRaw) return null;
-    const user   = JSON.parse(userRaw)   as { accessToken: string };
-    const folder = JSON.parse(folderRaw) as { id: string };
-    if (!user.accessToken || !folder.id) return null;
-    return { accessToken: user.accessToken, folderId: folder.id };
-  } catch {
-    return null;
+async function getStoredAuth(): Promise<{ accessToken: string; folderId: string }> {
+  const userRaw   = localStorage.getItem('doc-vault-google-user');
+  const folderRaw = localStorage.getItem('doc-vault-root-folder');
+  if (!userRaw || !folderRaw) throw new Error('Not signed in or no folder selected');
+  const user   = JSON.parse(userRaw)   as { accessToken: string; refreshToken?: string; expiresAt?: number };
+  const folder = JSON.parse(folderRaw) as { id: string };
+  if (!user.accessToken || !folder.id) throw new Error('Not signed in or no folder selected');
+
+  // Refresh if token expires within the next 5 minutes
+  if (user.refreshToken && user.expiresAt && Date.now() > user.expiresAt - 5 * 60 * 1000) {
+    try {
+      const { refreshAccessToken } = await import('../hooks/useGoogleAuth');
+      const { accessToken, expiresAt } = await refreshAccessToken(user.refreshToken);
+      const updated = { ...user, accessToken, expiresAt };
+      localStorage.setItem('doc-vault-google-user', JSON.stringify(updated));
+      return { accessToken, folderId: folder.id };
+    } catch {
+      throw new Error('Session expired. Please sign in again in Settings.');
+    }
   }
+
+  return { accessToken: user.accessToken, folderId: folder.id };
 }
 
 export async function uploadDocPhotos(
@@ -36,8 +46,7 @@ export async function uploadDocPhotos(
   photos: File[],
   docDate?: string,
 ): Promise<{ uploaded: UploadResult[] }> {
-  const auth = getStoredAuth();
-  if (!auth) throw new Error('Not signed in or no folder selected');
+  const auth = await getStoredAuth();
 
   const { uploadFile, findOrCreateFolder } = await import('./driveApi');
 

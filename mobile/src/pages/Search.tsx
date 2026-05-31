@@ -99,7 +99,7 @@ export default function Search() {
         </div>
       </form>
 
-      <div className="flex-1 px-4 mt-4 overflow-y-auto pb-4 space-y-3">
+      <div className="flex-1 px-4 mt-4 overflow-y-auto pb-24 space-y-3">
         {loading && (
           <div className="flex justify-center py-12">
             <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin" />
@@ -111,7 +111,7 @@ export default function Search() {
         {!loading && results.map((doc) => <DocCard key={doc.fileId} doc={doc} />)}
       </div>
 
-      <nav className="border-t border-muted flex">
+      <nav className="fixed bottom-0 left-0 right-0 bg-ink border-t border-muted flex safe-bottom z-10">
         <button type="button" onClick={() => navigate('/')} className="flex-1 py-4 text-sm text-gray-400">
           {t('nav_capture')}
         </button>

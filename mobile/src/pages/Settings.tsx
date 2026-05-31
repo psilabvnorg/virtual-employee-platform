@@ -79,7 +79,7 @@ export default function Settings() {
         </div>
       </header>
 
-      <div className="flex-1 px-4 space-y-4 overflow-y-auto pb-8">
+      <div className="flex-1 px-4 space-y-4 overflow-y-auto pb-24">
 
         {/* Language */}
         <section>
@@ -203,7 +203,7 @@ export default function Settings() {
         </section>
       </div>
 
-      <nav className="border-t border-muted flex">
+      <nav className="fixed bottom-0 left-0 right-0 bg-ink border-t border-muted flex safe-bottom z-10">
         <button type="button" onClick={() => navigate('/')} className="flex-1 py-4 text-sm text-gray-400">{t('nav_capture')}</button>
         <button type="button" onClick={() => navigate('/search')} className="flex-1 py-4 text-sm text-gray-400">{t('nav_search')}</button>
         <button type="button" className="flex-1 py-4 text-sm text-accent font-medium" disabled>{t('nav_settings')}</button>
