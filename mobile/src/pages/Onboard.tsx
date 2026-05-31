@@ -9,7 +9,11 @@ import { LOGO_PATH } from '../lib/branding';
 const ONBOARD_KEY = 'doc-vault-onboarded';
 const STEPS = 3;
 
-export default function Onboard() {
+interface OnboardProps {
+  onComplete: () => void;
+}
+
+export default function Onboard({ onComplete }: OnboardProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
@@ -35,6 +39,7 @@ export default function Onboard() {
 
   function finish() {
     localStorage.setItem(ONBOARD_KEY, 'true');
+    onComplete();           // flip App state so the / route renders CategorySelect
     navigate('/', { replace: true });
   }
 

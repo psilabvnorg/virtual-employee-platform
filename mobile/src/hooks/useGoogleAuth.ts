@@ -128,7 +128,7 @@ export function useGoogleAuth(onSuccess: (user: GoogleUser) => void, onError?: (
 
   const login = useCallback(async () => {
     if (!Capacitor.isNativePlatform()) {
-      onError?.('Sign-in only works on Android.');
+      onError?.('Sign-in only works on mobile (Android/iOS).');
       return;
     }
     try {
