@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useGoogleAuth, getStoredUser, GoogleUser } from '../hooks/useGoogleAuth';
 import { FolderPicker } from '../components/FolderPicker';
 import { useOfflineQueue } from '../hooks/useOfflineQueue';
+import { LOGO_PATH } from '../lib/branding';
 
 const FOLDER_KEY = 'doc-vault-root-folder';
+const SHEETS_KEY = 'doc-vault-sheets-enabled';
 
-export interface FolderConfig {
-  id: string;
-  name: string;
+function isSheetsOn(): boolean {
+  return localStorage.getItem(SHEETS_KEY) === 'true';
 }
+
+export interface FolderConfig { id: string; name: string; }
 
 export function getStoredFolder(): FolderConfig | null {
   try {
     const raw = localStorage.getItem(FOLDER_KEY);
     return raw ? (JSON.parse(raw) as FolderConfig) : null;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
 export function storeFolder(folder: FolderConfig): void {
@@ -26,19 +28,28 @@ export function storeFolder(folder: FolderConfig): void {
 
 export default function Settings() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [user, setUser] = useState<GoogleUser | null>(getStoredUser);
   const [folder, setFolder] = useState<FolderConfig | null>(getStoredFolder);
+  const [loginError, setLoginError] = useState('');
+  const [sheetsEnabled, setSheetsEnabled] = useState(isSheetsOn);
   const { queueCount, drainQueue, draining } = useOfflineQueue();
 
+  function toggleSheets() {
+    const next = !sheetsEnabled;
+    setSheetsEnabled(next);
+    localStorage.setItem(SHEETS_KEY, String(next));
+  }
+
   useEffect(() => {
-    // Refresh from storage in case another tab updated it
     setUser(getStoredUser());
     setFolder(getStoredFolder());
   }, []);
 
-  const { login, logout } = useGoogleAuth((newUser) => {
-    setUser(newUser);
-  });
+  const { login, logout } = useGoogleAuth(
+    (newUser) => { setUser(newUser); setLoginError(''); },
+    (msg) => setLoginError(msg),
+  );
 
   function handleLogout() {
     logout();
@@ -53,118 +64,150 @@ export default function Settings() {
     setFolder(config);
   }
 
+  function switchLanguage(lang: string) {
+    i18n.changeLanguage(lang);
+    localStorage.setItem('doc-vault-lang', lang);
+  }
+
   return (
     <div className="min-h-dvh bg-ink flex flex-col safe-top">
-      <header className="px-4 pt-5 pb-4">
-        <p className="text-xs text-accent uppercase tracking-widest font-mono mb-1">Doc Vault</p>
-        <h1 className="text-2xl font-bold text-white">Settings</h1>
+      <header className="px-4 pt-5 pb-4 flex items-center gap-3">
+        <img src={LOGO_PATH} alt="PSI" className="w-10 h-10 rounded-xl bg-white p-0.5 shrink-0" />
+        <div>
+          <p className="text-xs text-accent uppercase tracking-widest font-mono mb-0.5">{t('app_name')}</p>
+          <h1 className="text-2xl font-bold text-white">{t('settings_title')}</h1>
+        </div>
       </header>
 
       <div className="flex-1 px-4 space-y-4 overflow-y-auto pb-8">
+
+        {/* Language */}
+        <section>
+          <p className="text-xs text-gray-500 uppercase tracking-widest font-mono mb-2">{t('language')}</p>
+          <div className="bg-surface rounded-2xl p-1 flex gap-1">
+            <button
+              type="button"
+              onClick={() => switchLanguage('en')}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                i18n.language === 'en' ? 'bg-accent text-ink' : 'text-gray-400'
+              }`}
+            >
+              🇬🇧 English
+            </button>
+            <button
+              type="button"
+              onClick={() => switchLanguage('vi')}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                i18n.language === 'vi' ? 'bg-accent text-ink' : 'text-gray-400'
+              }`}
+            >
+              🇻🇳 Tiếng Việt
+            </button>
+          </div>
+        </section>
+
         {/* Google Account */}
         <section>
-          <p className="text-xs text-gray-500 uppercase tracking-widest font-mono mb-2">Google Account</p>
+          <p className="text-xs text-gray-500 uppercase tracking-widest font-mono mb-2">{t('google_account')}</p>
           {user ? (
             <div className="bg-surface rounded-2xl p-4">
               <div className="flex items-center gap-3 mb-4">
-                <img
-                  src={user.picture}
-                  alt={user.name}
-                  className="w-12 h-12 rounded-full border-2 border-accent"
-                  referrerPolicy="no-referrer"
-                />
+                <img src={user.picture} alt={user.name} className="w-12 h-12 rounded-full border-2 border-accent" referrerPolicy="no-referrer" />
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-semibold truncate">{user.name}</p>
                   <p className="text-gray-400 text-sm truncate">{user.email}</p>
                 </div>
               </div>
-              <button
-                onClick={handleLogout}
-                className="w-full bg-muted text-gray-300 py-2.5 rounded-xl text-sm font-medium active:opacity-70"
-              >
-                Sign Out
+              <button type="button" onClick={handleLogout} className="w-full bg-muted text-gray-300 py-2.5 rounded-xl text-sm font-medium active:opacity-70">
+                {t('sign_out')}
               </button>
             </div>
           ) : (
-            <button
-              onClick={() => login()}
-              className="w-full bg-white text-ink font-semibold py-4 rounded-2xl text-sm flex items-center justify-center gap-3 active:opacity-80"
-            >
-              <GoogleIcon />
-              Sign in with Google
-            </button>
+            <>
+              <button type="button" onClick={() => login()} className="w-full bg-white text-ink font-semibold py-4 rounded-2xl text-sm flex items-center justify-center gap-3 active:opacity-80">
+                <GoogleIcon />
+                {t('sign_in_google')}
+              </button>
+              {loginError && (
+                <p className="mt-2 text-red-400 text-xs px-1 break-all">{loginError}</p>
+              )}
+            </>
           )}
         </section>
 
         {/* Drive Folder */}
         {user && (
           <section>
-            <p className="text-xs text-gray-500 uppercase tracking-widest font-mono mb-2">Storage Root Folder</p>
-            <FolderPicker
-              accessToken={user.accessToken}
-              selectedFolderId={folder?.id ?? ''}
-              selectedFolderName={folder?.name ?? ''}
-              onSelect={handleFolderSelect}
-            />
-            {folder && (
-              <p className="text-xs text-gray-600 mt-2 px-1">
-                New uploads will go into this folder, organized by category / year / month.
-              </p>
-            )}
+            <p className="text-xs text-gray-500 uppercase tracking-widest font-mono mb-2">{t('storage_folder')}</p>
+            <FolderPicker accessToken={user.accessToken} selectedFolderId={folder?.id ?? ''} selectedFolderName={folder?.name ?? ''} onSelect={handleFolderSelect} />
+            {folder && <p className="text-xs text-gray-600 mt-2 px-1">{t('folder_hint')}</p>}
           </section>
         )}
 
+        {/* Server Features */}
+        <section>
+          <p className="text-xs text-gray-500 uppercase tracking-widest font-mono mb-2">{t('server_features')}</p>
+          <div className="bg-surface rounded-2xl p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-sm font-medium">{t('sheets_db')}</p>
+                <p className="text-gray-500 text-xs mt-0.5 leading-snug">
+                  {sheetsEnabled ? t('sheets_db_hint_on') : t('sheets_db_hint_off')}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={sheetsEnabled}
+                aria-label={t('sheets_db')}
+                onClick={toggleSheets}
+                className={`relative h-6 w-11 shrink-0 rounded-full p-0.5 transition-colors duration-200 focus:outline-none ${
+                  sheetsEnabled ? 'bg-accent' : 'bg-gray-700'
+                }`}
+              >
+                <span
+                  className={`block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
+                    sheetsEnabled ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+        </section>
+
         {/* Offline Queue */}
         <section>
-          <p className="text-xs text-gray-500 uppercase tracking-widest font-mono mb-2">Offline Queue</p>
+          <p className="text-xs text-gray-500 uppercase tracking-widest font-mono mb-2">{t('offline_queue')}</p>
           <div className="bg-surface rounded-2xl p-4 flex items-center justify-between">
             <div>
-              <p className="text-white text-sm font-medium">{queueCount} pending upload{queueCount !== 1 ? 's' : ''}</p>
-              <p className="text-gray-500 text-xs mt-0.5">Saved offline, will upload automatically</p>
+              <p className="text-white text-sm font-medium">{t('pending', { count: queueCount })}</p>
+              <p className="text-gray-500 text-xs mt-0.5">{t('saved_offline')}</p>
             </div>
             {queueCount > 0 && (
-              <button
-                onClick={() => drainQueue()}
-                disabled={draining}
-                className="bg-accent text-ink text-xs font-bold px-4 py-2 rounded-xl disabled:opacity-50"
-              >
-                {draining ? 'Uploading…' : 'Upload Now'}
+              <button type="button" onClick={() => drainQueue()} disabled={draining} className="bg-accent text-ink text-xs font-bold px-4 py-2 rounded-xl disabled:opacity-50">
+                {draining ? t('uploading_btn') : t('upload_now')}
               </button>
             )}
           </div>
         </section>
 
-        {/* App info */}
+        {/* About */}
         <section>
-          <p className="text-xs text-gray-500 uppercase tracking-widest font-mono mb-2">About</p>
-          <div className="bg-surface rounded-2xl p-4 space-y-1">
-            <InfoRow label="Version" value="1.0.0" />
-            <InfoRow label="Backend" value={window.location.origin.replace('5174', '3001')} />
-            <InfoRow label="OCR" value="Nightly at 02:00" />
+          <p className="text-xs text-gray-500 uppercase tracking-widest font-mono mb-2">{t('about')}</p>
+          <div className="bg-surface rounded-2xl p-4">
+            <div className="flex justify-between items-center py-1">
+              <span className="text-gray-500 text-sm">{t('version')}</span>
+              <span className="text-gray-300 text-xs font-mono">1.0.0</span>
+            </div>
           </div>
         </section>
       </div>
 
       <nav className="border-t border-muted flex">
-        <button onClick={() => navigate('/')} className="flex-1 py-4 text-sm text-gray-400">
-          Capture
-        </button>
-        <button onClick={() => navigate('/search')} className="flex-1 py-4 text-sm text-gray-400">
-          Search
-        </button>
-        <button className="flex-1 py-4 text-sm text-accent font-medium" disabled>
-          Settings
-        </button>
+        <button type="button" onClick={() => navigate('/')} className="flex-1 py-4 text-sm text-gray-400">{t('nav_capture')}</button>
+        <button type="button" onClick={() => navigate('/search')} className="flex-1 py-4 text-sm text-gray-400">{t('nav_search')}</button>
+        <button type="button" className="flex-1 py-4 text-sm text-accent font-medium" disabled>{t('nav_settings')}</button>
       </nav>
-    </div>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between items-center py-1">
-      <span className="text-gray-500 text-sm">{label}</span>
-      <span className="text-gray-300 text-xs font-mono truncate max-w-[55%] text-right">{value}</span>
     </div>
   );
 }

@@ -5,7 +5,26 @@
       "Bash(Select-Object Name, PSIsContainer)",
       "Bash(Format-Table -AutoSize)",
       "Bash(npx tsc *)",
-      "Bash(Select-Object Name, Mode)"
+      "Bash(Select-Object Name, Mode)",
+      "Bash(ls \"C:\\\\Users\\\\P15V\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\platform-tools\\\\\" 2>/dev/null | head -5)",
+      "Read(//c/Users/P15V/AppData/Local/Android/Sdk/platform-tools\" 2>/dev/**)",
+      "WebSearch",
+      "WebFetch(domain:capawesome.io)",
+      "Bash(npm uninstall *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npx cap *)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(node -e \"const pkg = require\\('./node_modules/@capawesome/capacitor-google-sign-in/package.json'\\); console.log\\('version:', pkg.version\\); console.log\\('peerDeps:', JSON.stringify\\(pkg.peerDependencies\\)\\)\")",
+      "Bash(node -e \"const fs = require\\('fs'\\); const d = fs.readFileSync\\('./node_modules/@capawesome/capacitor-google-sign-in/dist/esm/definitions.d.ts', 'utf8'\\); console.log\\(d\\)\")",
+      "Bash(node -e \"try { require\\('@codetrix-studio/capacitor-google-auth'\\); console.log\\('OLD PLUGIN STILL PRESENT'\\); } catch\\(e\\) { console.log\\('OLD PLUGIN REMOVED OK'\\); }\")",
+      "Bash(node -e \"const fs = require\\('fs'\\); const d = fs.readFileSync\\('./node_modules/@capawesome/capacitor-google-sign-in/dist/esm/index.js', 'utf8'\\); console.log\\(d.substring\\(0, 500\\)\\)\")",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Android\\\\Android Studio\\\\jbr\"; Set-Location \"c:\\\\Users\\\\P15V\\\\Desktop\\\\PSI\\\\AI-PROJECT\\\\virtual-employee-platform\\\\mobile\\\\android\"; .\\\\gradlew.bat assembleDebug)",
+      "PowerShell(& adb install -r $apk 2>&1)",
+      "PowerShell($apk = \"c:\\\\Users\\\\P15V\\\\Desktop\\\\PSI\\\\AI-PROJECT\\\\virtual-employee-platform\\\\mobile\\\\android\\\\app\\\\build\\\\outputs\\\\apk\\\\debug\\\\app-debug.apk\")",
+      "PowerShell($adb = Get-ChildItem \"C:\\\\Users\\\\P15V\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\platform-tools\\\\adb.exe\" -ErrorAction SilentlyContinue; if \\(-not $adb\\) { $adb = Get-ChildItem \"C:\\\\Program Files\\\\Android\\\\Android Studio\" -Recurse -Filter \"adb.exe\" -ErrorAction SilentlyContinue | Select-Object -First 1 }; $adb.FullName)",
+      "PowerShell($adb = \"C:\\\\Users\\\\P15V\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\platform-tools\\\\adb.exe\"; $apk = \"c:\\\\Users\\\\P15V\\\\Desktop\\\\PSI\\\\AI-PROJECT\\\\virtual-employee-platform\\\\mobile\\\\android\\\\app\\\\build\\\\outputs\\\\apk\\\\debug\\\\app-debug.apk\"; & $adb install -r $apk)",
+      "Bash(git add *)"
     ]
   }
 }

@@ -21,6 +21,7 @@ router.post('/', upload.array('photos', 20), async (req, res) => {
   // User-supplied overrides from the mobile app Settings
   const userToken = (req.headers['x-user-token'] as string) || undefined;
   const rootFolderId = (req.headers['x-root-folder-id'] as string) || undefined;
+  const skipSheets = req.headers['x-skip-sheets'] === '1';
 
   if (!VALID_CATEGORIES.includes(category)) {
     res.status(400).json({ error: `Invalid category. Valid: ${VALID_CATEGORIES.join(', ')}` });
@@ -46,13 +47,15 @@ router.post('/', upload.array('photos', 20), async (req, res) => {
         rootFolderId,
       });
 
-      await appendDocRecord({
-        fileId: result.fileId,
-        driveUrl: result.url,
-        category,
-        docDate,
-        uploadedAt: new Date().toISOString(),
-      });
+      if (!skipSheets) {
+        await appendDocRecord({
+          fileId: result.fileId,
+          driveUrl: result.url,
+          category,
+          docDate,
+          uploadedAt: new Date().toISOString(),
+        });
+      }
 
       results.push(result);
     } catch (err) {

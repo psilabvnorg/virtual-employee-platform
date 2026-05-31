@@ -21,6 +21,7 @@ export function FolderPicker({ accessToken, selectedFolderId, selectedFolderName
   const [creating, setCreating] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [error, setError] = useState('');
+  const [showCreateInput, setShowCreateInput] = useState(false);
 
   const currentFolder = breadcrumb[breadcrumb.length - 1];
 
@@ -54,11 +55,10 @@ export function FolderPicker({ accessToken, selectedFolderId, selectedFolderName
     if (!name) return;
     setCreating(true);
     try {
-      const folder = await createFolder(accessToken, name, currentFolder.id);
+      await createFolder(accessToken, name, currentFolder.id);
       setNewFolderName('');
+      setShowCreateInput(false);
       await loadFolders(currentFolder.id);
-      onSelect(folder.id, `${currentFolder.name} / ${folder.name}`);
-      setOpen(false);
     } catch (err) {
       setError(String(err));
     } finally {
@@ -155,29 +155,45 @@ export function FolderPicker({ accessToken, selectedFolderId, selectedFolderName
 
             {/* Actions */}
             <div className="px-4 pb-6 pt-3 border-t border-muted space-y-3 safe-bottom">
-              <button
-                onClick={handleSelectCurrent}
-                className="w-full bg-accent text-ink font-bold py-3 rounded-xl text-sm"
-              >
-                Use "{currentFolder.name}"
-              </button>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="New folder name…"
-                  value={newFolderName}
-                  onChange={(e) => setNewFolderName(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-                  className="flex-1 bg-ink border border-muted rounded-xl px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-accent outline-none"
-                />
+              {showCreateInput ? (
+                <div className="space-y-2">
+                  <p className="text-xs text-gray-500 uppercase tracking-widest font-mono">New folder name</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="e.g. Invoices 2026"
+                      value={newFolderName}
+                      onChange={(e) => setNewFolderName(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                      autoFocus
+                      className="flex-1 bg-ink border border-accent rounded-xl px-3 py-2 text-sm text-white placeholder-gray-600 outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleCreate}
+                      disabled={!newFolderName.trim() || creating}
+                      className="px-4 py-2 bg-accent text-ink rounded-xl text-sm font-bold disabled:opacity-40"
+                    >
+                      {creating ? '…' : 'Create'}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setShowCreateInput(false); setNewFolderName(''); }}
+                    className="text-xs text-gray-500 w-full text-center py-1"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
                 <button
-                  onClick={handleCreate}
-                  disabled={!newFolderName.trim() || creating}
-                  className="px-4 py-2 bg-surface border border-accent text-accent rounded-xl text-sm font-medium disabled:opacity-40"
+                  type="button"
+                  onClick={() => setShowCreateInput(true)}
+                  className="w-full bg-accent text-ink py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 active:opacity-80"
                 >
-                  {creating ? '…' : '+ Create'}
+                  <span className="text-lg font-black">+</span> New Folder Here
                 </button>
-              </div>
+              )}
             </div>
           </div>
         </div>

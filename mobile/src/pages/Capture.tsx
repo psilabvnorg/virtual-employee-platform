@@ -1,88 +1,136 @@
 import React, { useState, useCallback } from 'react';
+import { flushSync } from 'react-dom';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { DocCategory } from '../lib/api';
-import { useCamera } from '../hooks/useCamera';
-import { PhotoGrid } from '../components/PhotoGrid';
+import { useOcr } from '../hooks/useOcr';
+import { LoadingOverlay } from '../components/LoadingOverlay';
+
+async function pickPhoto(source: CameraSource): Promise<{ dataUrl: string; file: File } | null> {
+  try {
+    const photo = await Camera.getPhoto({
+      quality: 90,
+      allowEditing: false,
+      resultType: CameraResultType.DataUrl,
+      source,
+    });
+    if (!photo.dataUrl) return null;
+    const blob = await (await fetch(photo.dataUrl)).blob();
+    const file = new File([blob], 'photo.jpg', { type: blob.type || 'image/jpeg' });
+    return { dataUrl: photo.dataUrl, file };
+  } catch {
+    return null;
+  }
+}
 
 export default function Capture() {
   const { category } = useParams<{ category: DocCategory }>();
   const navigate = useNavigate();
-  const [photos, setPhotos] = useState<File[]>([]);
+  const { t } = useTranslation();
+  const [dataUrl, setDataUrl] = useState('');
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [picking, setPicking] = useState(false);
+  const { scan, reset, text, progress, scanning, error } = useOcr();
 
-  const addPhoto = useCallback((file: File) => {
-    setPhotos((prev) => [...prev, file]);
-  }, []);
+  const handleCapture = useCallback(async (source: CameraSource) => {
+    flushSync(() => setPicking(true));
+    const result = await pickPhoto(source);
+    setPicking(false);
+    if (!result) return;
+    setDataUrl(result.dataUrl);
+    setPhotoFile(result.file);
+    reset();
+  }, [reset]);
 
-  const removePhoto = useCallback((index: number) => {
-    setPhotos((prev) => prev.filter((_, i) => i !== index));
-  }, []);
-
-  const { inputRef, openCamera, openGallery, handleChange } = useCamera(addPhoto);
+  function handleRetake() {
+    setDataUrl('');
+    setPhotoFile(null);
+    reset();
+    handleCapture(CameraSource.Prompt);
+  }
 
   function handleNext() {
-    if (photos.length === 0) return;
-    navigate('/upload', { state: { category, photos } });
+    if (!photoFile) return;
+    navigate('/upload', { state: { category, photos: [photoFile] } });
   }
+
+  if (picking) return <LoadingOverlay />;
 
   return (
     <div className="min-h-dvh bg-ink flex flex-col safe-top">
-      <header className="flex items-center gap-3 px-4 pt-5 pb-4">
-        <button onClick={() => navigate('/')} className="text-gray-400 text-lg leading-none">
+      <header className="flex items-center gap-3 px-4 pt-5 pb-3">
+        <button type="button" onClick={() => navigate('/')} className="text-gray-400 text-lg leading-none">
           ←
         </button>
         <div>
           <p className="text-xs text-gray-500 uppercase tracking-widest font-mono">{category}</p>
-          <h1 className="text-xl font-bold text-white">Add Photos</h1>
+          <h1 className="text-xl font-bold text-white">{photoFile ? t('review') : t('scan_document')}</h1>
         </div>
       </header>
 
-      <div className="flex-1 px-4 overflow-y-auto">
-        <div className="flex gap-3">
-          <button
-            onClick={openCamera}
-            className="flex-1 bg-accent text-ink font-semibold py-4 rounded-2xl text-sm active:opacity-80 transition-opacity"
-          >
-            📷 Camera
-          </button>
-          <button
-            onClick={openGallery}
-            className="flex-1 bg-surface text-white font-semibold py-4 rounded-2xl text-sm active:opacity-80 transition-opacity"
-          >
-            🖼 Gallery
-          </button>
-        </div>
-
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          onChange={handleChange}
-        />
-
-        {photos.length > 0 ? (
+      <div className="flex-1 overflow-y-auto px-4">
+        {photoFile ? (
           <>
-            <p className="text-xs text-gray-500 mt-4 mb-1">{photos.length} photo{photos.length > 1 ? 's' : ''} added</p>
-            <PhotoGrid photos={photos} onRemove={removePhoto} />
+            <img src={dataUrl} alt="Captured document" className="w-full rounded-2xl object-contain max-h-72" />
+
+            <button
+              type="button"
+              onClick={() => scan(photoFile)}
+              disabled={scanning}
+              className="mt-4 w-full bg-blue-600 text-white font-bold py-4 rounded-2xl text-base active:opacity-80 disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {scanning ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  {t('extracting')} {progress > 0 ? `${progress}%` : ''}
+                </>
+              ) : t('extract_text')}
+            </button>
+
+            {error && <p className="mt-3 text-red-400 text-sm">{error}</p>}
+
+            {text && (
+              <div className="mt-3 bg-surface rounded-2xl p-4 mb-4">
+                <p className="text-xs text-blue-400 uppercase tracking-widest font-mono mb-2">{t('extracted_text')}</p>
+                <pre className="text-white text-sm whitespace-pre-wrap font-mono leading-relaxed max-h-52 overflow-y-auto">
+                  {text}
+                </pre>
+              </div>
+            )}
           </>
         ) : (
-          <div className="mt-16 flex flex-col items-center text-center gap-3 text-gray-600">
-            <span className="text-5xl">📄</span>
-            <p className="text-sm">Take or pick photos of your document.<br />Multiple pages supported.</p>
+          <div className="flex flex-col items-center justify-center gap-4 mt-20 text-center px-4">
+            <span className="text-6xl">📄</span>
+            <p className="text-gray-400 text-sm">{t('waiting_camera')}</p>
+            <button
+              type="button"
+              onClick={() => handleCapture(CameraSource.Camera)}
+              className="w-full bg-accent text-ink font-bold py-5 rounded-2xl text-lg active:opacity-80"
+            >
+              {t('take_photo')}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleCapture(CameraSource.Photos)}
+              className="w-full bg-surface text-white font-semibold py-5 rounded-2xl text-lg active:opacity-80 border border-muted"
+            >
+              {t('choose_gallery')}
+            </button>
           </div>
         )}
       </div>
 
-      <div className="px-4 pb-6 pt-4 safe-bottom">
-        <button
-          onClick={handleNext}
-          disabled={photos.length === 0}
-          className="w-full bg-accent text-ink font-bold py-4 rounded-2xl text-base disabled:opacity-30 active:opacity-80 transition-opacity"
-        >
-          Next: Review & Upload ({photos.length})
-        </button>
-      </div>
+      {photoFile && (
+        <div className="px-4 pb-6 pt-3 safe-bottom flex gap-3">
+          <button type="button" onClick={handleRetake} className="flex-1 bg-surface text-white font-semibold py-4 rounded-2xl text-sm active:opacity-80">
+            {t('retake')}
+          </button>
+          <button type="button" onClick={handleNext} className="flex-1 bg-accent text-ink font-bold py-4 rounded-2xl text-sm active:opacity-80">
+            {t('upload')}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

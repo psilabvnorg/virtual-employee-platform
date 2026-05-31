@@ -16,4 +16,8 @@ html, body, #root {
   .safe-top {
     padding-top: env(safe-area-inset-top, 0px);
   }
+  .ocr-progress-bar {
+    width: var(--ocr-progress, 0%);
+    transition: width 0.3s ease;
+  }
 }
