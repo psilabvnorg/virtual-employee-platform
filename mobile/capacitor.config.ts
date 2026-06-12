@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.psi.docvault',
-  appName: 'Doc Vault',
+  appId: 'com.psilab.docvault',
+  appName: 'Doc Vault PsiLab',
   webDir: 'dist',
   ios: {
     scrollEnabled: false,

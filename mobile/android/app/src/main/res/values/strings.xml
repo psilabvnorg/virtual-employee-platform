@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Doc Vault</string>
+    <string name="app_name">Doc Vault PsiLab</string>
     <string name="title_activity_main">Doc Vault</string>
-    <string name="package_name">com.psi.docvault</string>
-    <string name="custom_url_scheme">com.psi.docvault</string>
+    <string name="package_name">com.psilab.docvault</string>
+    <string name="custom_url_scheme">com.psilab.docvault</string>
 </resources>

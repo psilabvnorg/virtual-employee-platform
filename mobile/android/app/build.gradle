@@ -7,7 +7,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.psi.docvault"
+    namespace = "com.psilab.docvault"
     compileSdk = rootProject.ext.compileSdkVersion
     signingConfigs {
         release {
@@ -18,7 +18,7 @@ android {
         }
     }
     defaultConfig {
-        applicationId "com.psi.docvault"
+        applicationId "com.psilab.docvault"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
