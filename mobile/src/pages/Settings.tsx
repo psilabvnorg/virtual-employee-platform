@@ -33,6 +33,7 @@ export default function Settings() {
   const [folder, setFolder] = useState<FolderConfig | null>(getStoredFolder);
   const [loginError, setLoginError] = useState('');
   const [sheetsEnabled, setSheetsEnabled] = useState(isSheetsOn);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { queueCount, drainQueue, draining } = useOfflineQueue();
 
   function toggleSheets() {
@@ -56,6 +57,23 @@ export default function Settings() {
     setUser(null);
     setFolder(null);
     localStorage.removeItem(FOLDER_KEY);
+  }
+
+  async function handleDeleteAccount() {
+    logout();
+    localStorage.removeItem(FOLDER_KEY);
+    localStorage.removeItem(SHEETS_KEY);
+    localStorage.removeItem('doc-vault-google-user');
+    localStorage.removeItem('doc-vault-lang');
+    try {
+      await indexedDB.deleteDatabase('doc-vault-queue');
+    } catch {
+      // best-effort
+    }
+    setUser(null);
+    setFolder(null);
+    setShowDeleteConfirm(false);
+    navigate('/onboard');
   }
 
   function handleFolderSelect(id: string, name: string) {
@@ -135,6 +153,43 @@ export default function Settings() {
           )}
         </section>
 
+        {/* Delete Account Data */}
+        {user && (
+          <section>
+            <p className="text-xs text-gray-500 uppercase tracking-widest font-mono mb-2">{t('delete_account')}</p>
+            {showDeleteConfirm ? (
+              <div className="bg-surface rounded-2xl p-4 border border-red-800">
+                <p className="text-white text-sm font-semibold mb-1">{t('delete_account_title')}</p>
+                <p className="text-gray-400 text-xs mb-4 leading-relaxed">{t('delete_account_warning')}</p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="flex-1 bg-muted text-gray-300 py-2.5 rounded-xl text-sm font-medium active:opacity-70"
+                  >
+                    {t('cancel')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDeleteAccount}
+                    className="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm font-semibold active:opacity-70"
+                  >
+                    {t('delete_account_confirm')}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-full bg-surface text-red-400 py-3 rounded-2xl text-sm font-medium active:opacity-70 border border-red-900"
+              >
+                {t('delete_account_btn')}
+              </button>
+            )}
+          </section>
+        )}
+
         {/* Drive Folder */}
         {user && (
           <section>
@@ -194,10 +249,20 @@ export default function Settings() {
         {/* About */}
         <section>
           <p className="text-xs text-gray-500 uppercase tracking-widest font-mono mb-2">{t('about')}</p>
-          <div className="bg-surface rounded-2xl p-4">
+          <div className="bg-surface rounded-2xl p-4 divide-y divide-muted">
             <div className="flex justify-between items-center py-1">
               <span className="text-gray-500 text-sm">{t('version')}</span>
               <span className="text-gray-300 text-xs font-mono">1.0.0</span>
+            </div>
+            <div className="pt-2 mt-1">
+              <a
+                href="/privacy-policy.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent text-sm underline-offset-2 underline"
+              >
+                {t('privacy_policy')}
+              </a>
             </div>
           </div>
         </section>

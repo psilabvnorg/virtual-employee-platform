@@ -101,6 +101,14 @@ const resources = {
       onboard_next: 'Next',
       onboard_done: 'Get Started',
       onboard_skip: 'Skip',
+
+      privacy_policy: 'Privacy Policy',
+      delete_account: 'Delete Account Data',
+      delete_account_btn: 'Delete All App Data',
+      delete_account_title: 'Delete all app data?',
+      delete_account_warning: 'This will sign you out and erase all local data including your offline queue. Your files in Google Drive will NOT be deleted — they remain in your Google account.',
+      delete_account_confirm: 'Yes, Delete',
+      cancel: 'Cancel',
     },
   },
   vi: {
@@ -202,6 +210,14 @@ const resources = {
       onboard_next: 'Tiếp theo',
       onboard_done: 'Bắt đầu',
       onboard_skip: 'Bỏ qua',
+
+      privacy_policy: 'Chính sách bảo mật',
+      delete_account: 'Xóa dữ liệu tài khoản',
+      delete_account_btn: 'Xóa toàn bộ dữ liệu ứng dụng',
+      delete_account_title: 'Xóa toàn bộ dữ liệu ứng dụng?',
+      delete_account_warning: 'Bạn sẽ bị đăng xuất và toàn bộ dữ liệu cục bộ bao gồm hàng đợi offline sẽ bị xóa. Các tệp trên Google Drive sẽ KHÔNG bị xóa — chúng vẫn nằm trong tài khoản Google của bạn.',
+      delete_account_confirm: 'Xác nhận xóa',
+      cancel: 'Hủy',
     },
   },
 };
